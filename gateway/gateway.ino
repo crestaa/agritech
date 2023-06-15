@@ -11,8 +11,11 @@
 #include "LoRaWan_APP.h"
 #include "Arduino.h"
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <PubSubClient.h>
 #include <SPIFFS.h>
 #include "credentials.h"
+
 
 #define RF_FREQUENCY                                868000000 // Hz
 
@@ -44,10 +47,16 @@ int16_t rssi,rxSize;
 
 bool lora_idle = true;
 
+WiFiClient wifiClient;
+PubSubClient mqttClient(wifiClient);
+
 void setup() {
     Serial.begin(115200);
     Mcu.begin();
-    wifi_connect();
+    bool success = wifi_connect();
+    if(success){
+      mqtt_connect();
+    }
     
     txNumber=0;
     rssi=0;
@@ -63,6 +72,9 @@ void setup() {
 
 void loop()
 {
+  if (!mqttClient.connected()) {
+    mqtt_connect();
+  }
   if(lora_idle)
   {
     lora_idle = false;
@@ -80,10 +92,13 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
     rxpacket[size]='\0';
     Radio.Sleep( );
     Serial.printf("\r\nreceived packet \"%s\" with rssi %d , length %d\r\n",rxpacket,rssi,rxSize);
+    String payl = "received packet "+String(rxpacket);
+    mqttClient.publish("test", payl.c_str());
+
     lora_idle = true;
 }
 
-void wifi_connect(){
+bool wifi_connect(){
   int attempts = 0;
 
   Serial.print("Connecting to ");
@@ -95,12 +110,26 @@ void wifi_connect(){
     attempts++;
   }
   if(attempts >= MAX_ATTEMPTS){
-    Serial.println("Can't connect to Wi-Fi. Please check credentials and reach.");
-    return;
+    Serial.println("Can't connect to Wi-Fi. Please check credentials and signal reach.");
+    return false;
   }
 
   Serial.println("");
   Serial.println("Connected to Wi-Fi");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+  return true;
+}
+void mqtt_connect(){
+  mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
+  while (!mqttClient.connected()) {
+    Serial.println("Trying to connect to MQTT broker...");
+    if (mqttClient.connect("HeltecGateway", MQTT_USER, MQTT_PASSWORD)) {
+      Serial.println("MQTT broker connected");
+    } else {
+      Serial.print("MQTT broker connection failed, error: ");
+      Serial.println(mqttClient.state());
+      delay(2000);
+    }
+  }
 }
