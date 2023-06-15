@@ -10,6 +10,9 @@
 */
 #include "LoRaWan_APP.h"
 #include "Arduino.h"
+#include <WiFi.h>
+#include <SPIFFS.h>
+#include "credentials.h"
 
 #define RF_FREQUENCY                                868000000 // Hz
 
@@ -44,6 +47,7 @@ bool lora_idle = true;
 void setup() {
     Serial.begin(115200);
     Mcu.begin();
+    wifi_connect();
     
     txNumber=0;
     rssi=0;
@@ -56,8 +60,6 @@ void setup() {
                                LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
                                0, true, 0, 0, LORA_IQ_INVERSION_ON, true );
 }
-
-
 
 void loop()
 {
@@ -79,4 +81,26 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
     Radio.Sleep( );
     Serial.printf("\r\nreceived packet \"%s\" with rssi %d , length %d\r\n",rxpacket,rssi,rxSize);
     lora_idle = true;
+}
+
+void wifi_connect(){
+  int attempts = 0;
+
+  Serial.print("Connecting to ");
+  Serial.println(WIFI_SSID);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED && attempts < MAX_ATTEMPTS) {
+    delay(1000);
+    Serial.print(".");
+    attempts++;
+  }
+  if(attempts >= MAX_ATTEMPTS){
+    Serial.println("Can't connect to Wi-Fi. Please check credentials and reach.");
+    return;
+  }
+
+  Serial.println("");
+  Serial.println("Connected to Wi-Fi");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
 }
