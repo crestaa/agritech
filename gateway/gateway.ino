@@ -13,8 +13,12 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
-#include <SPIFFS.h>
 #include "credentials.h"
+
+#include "Wire.h"
+#include "HT_SSD1306Wire.h"
+
+SSD1306Wire  disp(0x3c, 500000, SDA_OLED, SCL_OLED, GEOMETRY_128_64, RST_OLED);
 
 
 #define RF_FREQUENCY                                868000000 // Hz
@@ -51,23 +55,25 @@ WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
 
 void setup() {
-    Serial.begin(115200);
-    Mcu.begin();
-    bool success = wifi_connect();
-    if(success){
-      mqtt_connect();
-    }
-    
-    txNumber=0;
-    rssi=0;
+  disp.init();
+  disp.setFont(ArialMT_Plain_10);
+
+  Serial.begin(115200);
+  Mcu.begin();
+
+  wifi_connect();
+  mqtt_connect();
   
-    RadioEvents.RxDone = OnRxDone;
-    Radio.Init( &RadioEvents );
-    Radio.SetChannel( RF_FREQUENCY );
-    Radio.SetRxConfig( MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
-                               LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
-                               LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
-                               0, true, 0, 0, LORA_IQ_INVERSION_ON, true );
+  txNumber=0;
+  rssi=0;
+
+  RadioEvents.RxDone = OnRxDone;
+  Radio.Init( &RadioEvents );
+  Radio.SetChannel( RF_FREQUENCY );
+  Radio.SetRxConfig( MODEM_LORA, LORA_BANDWIDTH, LORA_SPREADING_FACTOR,
+                              LORA_CODINGRATE, 0, LORA_PREAMBLE_LENGTH,
+                              LORA_SYMBOL_TIMEOUT, LORA_FIX_LENGTH_PAYLOAD_ON,
+                              0, true, 0, 0, LORA_IQ_INVERSION_ON, true );
 }
 
 void loop()
@@ -86,46 +92,74 @@ void loop()
 
 void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 {
-    rssi=rssi;
-    rxSize=size;
-    memcpy(rxpacket, payload, size );
-    rxpacket[size]='\0';
-    Radio.Sleep( );
-    Serial.printf("\r\nreceived packet \"%s\" with rssi %d , length %d\r\n",rxpacket,rssi,rxSize);
-    String payl = "received packet "+String(rxpacket);
-    mqttClient.publish("test", payl.c_str());
+  rssi=rssi;
+  rxSize=size;
+  memcpy(rxpacket, payload, size );
+  rxpacket[size]='\0';
+  Radio.Sleep();
+  Serial.printf("\r\nreceived packet \"%s\" with rssi %d , length %d\r\n",rxpacket,rssi,rxSize);
+  String payl = "received packet "+String(rxpacket);
+  mqttClient.publish(MQTT_TOPIC, payl.c_str());
+  
+  disp.clear();
+  String s = "received "+String(rxSize)+" bytes";
+  disp.drawString(0,0,s);
+  s = "with "+String(rssi)+ " rssi";
+  disp.drawString(0,10,s);
+  disp.display();
 
-    lora_idle = true;
+  lora_idle = true;
 }
 
-bool wifi_connect(){
+void wifi_connect(){
   int attempts = 0;
 
   Serial.print("Connecting to ");
   Serial.println(WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  disp.clear();
+  String s = "Connecting to "+String(WIFI_SSID);
+  disp.drawString(0,0,s);
+  disp.display();
+
   while (WiFi.status() != WL_CONNECTED && attempts < MAX_ATTEMPTS) {
     delay(1000);
     Serial.print(".");
     attempts++;
   }
   if(attempts >= MAX_ATTEMPTS){
+    disp.drawString(0,20,"Can't connect to Wi-Fi.");
+    disp.drawString(0,30,"Please check credentials");
+    disp.drawString(0,40,"and signal reach.");
+    disp.display();
     Serial.println("Can't connect to Wi-Fi. Please check credentials and signal reach.");
-    return false;
+    while(1){}
   }
+
+  disp.drawString(0,20,"Connected.");
+  disp.display();
 
   Serial.println("");
   Serial.println("Connected to Wi-Fi");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-  return true;
+  delay(1000);
 }
+
 void mqtt_connect(){
   mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
+  disp.clear();
+  disp.drawString(0,0, "Connecting to MQTT broker");
+  disp.display();
+
   while (!mqttClient.connected()) {
     Serial.println("Trying to connect to MQTT broker...");
     if (mqttClient.connect("HeltecGateway", MQTT_USER, MQTT_PASSWORD)) {
       Serial.println("MQTT broker connected");
+      disp.drawString(0,20,"Connected.");
+      disp.display();
+      delay(1000);
     } else {
       Serial.print("MQTT broker connection failed, error: ");
       Serial.println(mqttClient.state());
