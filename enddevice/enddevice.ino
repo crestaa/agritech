@@ -11,7 +11,6 @@
 #include "LoRaWan_APP.h"
 #include "Arduino.h"
 
-
 #define RF_FREQUENCY                                868000000 // Hz
 
 #define TX_OUTPUT_POWER                             5        // dBm
@@ -46,21 +45,21 @@ void OnTxDone( void );
 void OnTxTimeout( void );
 
 void setup() {
-    Serial.begin(115200);
-    Mcu.begin();
-	
-    txNumber=0;
+  Serial.begin(115200);
+  Mcu.begin();
 
-    RadioEvents.TxDone = OnTxDone;
-    RadioEvents.TxTimeout = OnTxTimeout;
-    
-    Radio.Init( &RadioEvents );
-    Radio.SetChannel( RF_FREQUENCY );
-    Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
-                                   LORA_SPREADING_FACTOR, LORA_CODINGRATE,
-                                   LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
-                                   true, 0, 0, LORA_IQ_INVERSION_ON, 3000 ); 
-   }
+  txNumber=0;
+
+  RadioEvents.TxDone = OnTxDone;
+  RadioEvents.TxTimeout = OnTxTimeout;
+  
+  Radio.Init( &RadioEvents );
+  Radio.SetChannel( RF_FREQUENCY );
+  Radio.SetTxConfig( MODEM_LORA, TX_OUTPUT_POWER, 0, LORA_BANDWIDTH,
+                                  LORA_SPREADING_FACTOR, LORA_CODINGRATE,
+                                  LORA_PREAMBLE_LENGTH, LORA_FIX_LENGTH_PAYLOAD_ON,
+                                  true, 0, 0, LORA_IQ_INVERSION_ON, 3000 ); 
+}
 
 
 
