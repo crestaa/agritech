@@ -57,12 +57,10 @@ PubSubClient mqttClient(wifiClient);
 void setup() {
   disp.init();
   disp.setFont(ArialMT_Plain_10);
-  disp.clear();
-  disp.drawString(0,0,"Setting up environment");
-  disp.display();
 
   Serial.begin(115200);
   Mcu.begin();
+
   wifi_connect();
   mqtt_connect();
   
@@ -94,16 +92,23 @@ void loop()
 
 void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
 {
-    rssi=rssi;
-    rxSize=size;
-    memcpy(rxpacket, payload, size );
-    rxpacket[size]='\0';
-    Radio.Sleep( );
-    Serial.printf("\r\nreceived packet \"%s\" with rssi %d , length %d\r\n",rxpacket,rssi,rxSize);
-    String payl = "received packet "+String(rxpacket);
-    mqttClient.publish("test", payl.c_str());
+  rssi=rssi;
+  rxSize=size;
+  memcpy(rxpacket, payload, size );
+  rxpacket[size]='\0';
+  Radio.Sleep();
+  Serial.printf("\r\nreceived packet \"%s\" with rssi %d , length %d\r\n",rxpacket,rssi,rxSize);
+  String payl = "received packet "+String(rxpacket);
+  mqttClient.publish(MQTT_TOPIC, payl.c_str());
+  
+  disp.clear();
+  String s = "received "+String(rxSize)+" bytes";
+  disp.drawString(0,0,s);
+  s = "with "+String(rssi)+ " rssi";
+  disp.drawString(0,10,s);
+  disp.display();
 
-    lora_idle = true;
+  lora_idle = true;
 }
 
 void wifi_connect(){
@@ -112,11 +117,12 @@ void wifi_connect(){
   Serial.print("Connecting to ");
   Serial.println(WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
   disp.clear();
-  char* s = "Connecting to ";
-  strcat(s,WIFI_SSID);
+  String s = "Connecting to "+String(WIFI_SSID);
   disp.drawString(0,0,s);
   disp.display();
+
   while (WiFi.status() != WL_CONNECTED && attempts < MAX_ATTEMPTS) {
     delay(1000);
     Serial.print(".");
