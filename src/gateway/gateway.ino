@@ -39,7 +39,7 @@ SSD1306Wire  disp(0x3c, 500000, SDA_OLED, SCL_OLED, GEOMETRY_128_64, RST_OLED);
 
 
 #define RX_TIMEOUT_VALUE                            1000
-#define BUFFER_SIZE                                 30 // Define the payload size here
+#define BUFFER_SIZE                                 128 // Define the payload size here
 
 char rxpacket[BUFFER_SIZE];
 
