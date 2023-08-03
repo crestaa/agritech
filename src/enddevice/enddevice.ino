@@ -10,6 +10,8 @@
 */
 #include "LoRaWan_APP.h"
 #include "Arduino.h"
+#include <ArduinoJson.h>
+#include <WiFi.h>
 
 #define RF_FREQUENCY                                868000000 // Hz
 
@@ -29,12 +31,9 @@
 #define LORA_FIX_LENGTH_PAYLOAD_ON                  false
 #define LORA_IQ_INVERSION_ON                        false
 
-
-#define RX_TIMEOUT_VALUE                            1000
-#define BUFFER_SIZE                                 30 // Define the payload size here
+#define BUFFER_SIZE                                 128 // Define the payload size here
 
 char txpacket[BUFFER_SIZE];
-char rxpacket[BUFFER_SIZE];
 
 double txNumber;
 
@@ -62,18 +61,13 @@ void setup() {
 }
 
 
-
 void loop()
 {
 	if(lora_idle == true)
 	{
     delay(1000);
-		txNumber += 0.01;
-		sprintf(txpacket,"Hello world number %0.2f",txNumber);  //start a package
-   
-		Serial.printf("\r\nsending packet \"%s\" , length %d\r\n",txpacket, strlen(txpacket));
 
-		Radio.Send( (uint8_t *)txpacket, strlen(txpacket) ); //send the package out	
+    sendLoRaData(29.5, "temp");
     lora_idle = false;
 	}
   Radio.IrqProcess( );
@@ -90,4 +84,32 @@ void OnTxTimeout( void )
     Radio.Sleep( );
     Serial.println("TX Timeout......");
     lora_idle = true;
+}
+
+
+
+void sendLoRaData(float field, const char* read) {
+  // MAC addr + random ID generation
+  uint8_t mac[6];
+  WiFi.macAddress(mac);
+  char macStr[18];
+  snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  int id = random(100000);
+
+  // JSON object
+  StaticJsonDocument<200> jsonDocument;
+  jsonDocument["mac"] = macStr;
+  jsonDocument["id"] = id;
+  jsonDocument["field"] = field;
+  jsonDocument["read"] = read;
+
+  // serialized JSON to string
+  String jsonString;
+  serializeJson(jsonDocument, txpacket);
+
+  // LoRa transmission
+  Radio.Send( (uint8_t *)txpacket, strlen(txpacket) );
+
+  Serial.print("Dati JSON trasmessi: ");
+  Serial.println(txpacket);
 }
