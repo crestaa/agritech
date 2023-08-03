@@ -1,2 +1,3 @@
-server/server
-gateway/credentials.h
+src/server/server
+data/*
+src/gateway/credentials.h
