@@ -7,9 +7,9 @@ The project is split into:
  - `enddevice`, Arduino sketch(es) used for controlling sensors, collecting data and sending them over LoRaWAN protocol to gateway(s)
  - `gateway`, Arduino sketch(es) for forwarding data from LoRaWAN to the server over MQTT protocol
  - `server`, Go software for collecting data from the MQTT broker, process them and save to the DB
+ - `db`, the database for storing collected data
  
  TODO:
- - `DB`
  - `WebApp`
 
 ## Usage
@@ -24,3 +24,6 @@ This project is based on Heltec LoRa 32 v3 boards.
 From inside the `server` folder use `go build` to get yourself an executable file; otherwise use `go run .` to directly execute the code.
 
 Make sure to have Go 1.18 installed.
+
+### `db`
+This folder contains the SQL scripts for creating and initializing the database.
