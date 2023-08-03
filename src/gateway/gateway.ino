@@ -98,8 +98,7 @@ void OnRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr )
   rxpacket[size]='\0';
   Radio.Sleep();
   Serial.printf("\r\nreceived packet \"%s\" with rssi %d , length %d\r\n",rxpacket,rssi,rxSize);
-  String payl = "received packet "+String(rxpacket);
-  mqttClient.publish(MQTT_TOPIC, payl.c_str());
+  mqttClient.publish(MQTT_TOPIC, String(rxpacket).c_str());
   
   disp.clear();
   String s = "received "+String(rxSize)+" bytes";
