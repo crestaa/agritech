@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./config/mosquitto:/mosquitto/config
+      - ./data/mosquitto:/mosquitto/data
+    networks:
+      - my_network
+      
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "root_pwd"
+      MYSQL_DATABASE: "agritech_db"
+      MYSQL_USER: "admin"
+      MYSQL_PASSWORD: "admin"
+    networks:
+      - my_network
+      
+  go_server:
+    build:
+      context: ./src/server
+    ports:
+      - "8080:8080"
+    networks:
+      - my_network
+    depends_on:
+      - mosquitto
+      - mysql
+
+
+networks:
+  my_network:
+    driver: bridge
+
