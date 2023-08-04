@@ -90,11 +90,11 @@ void readData(){
 
 void readHum(){
   // MOCKUP
-  sendLoRaData(55, "hum");
+  sendLoRaData(random(80)+20, "hum");
 }
 void readTemp(){
   // MOCKUP
-  sendLoRaData(29.5, "temp");
+  sendLoRaData(float(random(200))/2, "temp");
 }
 
 void sendLoRaData(float value, const char* type) {
