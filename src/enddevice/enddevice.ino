@@ -45,7 +45,7 @@ char mac[18];
 
 void OnTxDone( void );
 void OnTxTimeout( void );
-void sendLoRaData(float value, const char* field);
+void sendLoRaData(float value, const char* type);
 void readHum( void );
 void readData( void );
 
@@ -97,7 +97,7 @@ void readTemp(){
   sendLoRaData(29.5, "temp");
 }
 
-void sendLoRaData(float value, const char* field) {
+void sendLoRaData(float value, const char* type) {
   // random ID generation
   int id = random(100000);
 
@@ -106,7 +106,7 @@ void sendLoRaData(float value, const char* field) {
   jsonDocument["mac"] = mac;
   jsonDocument["id"] = id;
   jsonDocument["value"] = value;
-  jsonDocument["field"] = field;
+  jsonDocument["type"] = type;
 
   // serialized JSON to string
   String jsonString;
