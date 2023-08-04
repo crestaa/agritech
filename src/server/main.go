@@ -49,11 +49,13 @@ type Message struct {
 }
 
 func handleMessage(msg MQTT.Message) {
-	_, err := parseJSON(msg)
+	data, err := parseJSON(msg)
 	if err != nil {
 		fmt.Println("ERR during JSON parsing:", err)
 		return
 	}
+
+	fmt.Println("Received: ", data)
 
 }
 
