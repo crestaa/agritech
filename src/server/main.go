@@ -7,10 +7,13 @@ import (
 	"os"
 	"os/signal"
 
+	_ "agritech/server/crypto"
+
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
 func main() {
+
 	// MQTT broker setup
 	opts := MQTT.NewClientOptions().AddBroker(MQTT_BROKER)
 	opts.SetClientID("mqtt-subscriber")
