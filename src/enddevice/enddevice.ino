@@ -12,6 +12,7 @@
 #include "Arduino.h"
 #include <ArduinoJson.h>
 #include <WiFi.h>
+#include "read_data.h"
 
 #define RF_FREQUENCY                                868000000 // Hz
 
@@ -89,8 +90,9 @@ void readData(){
 }
 
 void readHum(){
-  // MOCKUP
-  sendLoRaData(random(80)+20, "hum");
+  int hum = getHumidity();
+  if (hum >= 0) sendLoRaData(hum, "hum");
+  else Serial.println("ERROR: humidity read returned negative value, please check sensor connection");
 }
 void readTemp(){
   // MOCKUP
