@@ -26,7 +26,6 @@ services:
     expose:
       - '3307'
     volumes:
-      - my-db:/var/lib/mysql
       - ./data/db:/var/lib/mysql
     networks:
       - agritech_network
