@@ -1,5 +1,9 @@
-CREATE DATABASE IF NOT EXISTS agritech;
-USE agritech;
+GRANT ALL PRIVILEGES ON agritech_db.* TO 'user'@'%';
+FLUSH PRIVILEGES;
+
+
+CREATE DATABASE IF NOT EXISTS agritech_db;
+USE agritech_db;
 
 CREATE TABLE IF NOT EXISTS Campi (
     id_campo INT PRIMARY KEY AUTO_INCREMENT,

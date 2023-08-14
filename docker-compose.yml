@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  mosquitto:
+  agritech-mosquitto:
     image: eclipse-mosquitto
     ports:
       - "1883:1883"
@@ -9,18 +9,27 @@ services:
       - ./config/mosquitto:/mosquitto/config
       - ./data/mosquitto:/mosquitto/data
     networks:
-      - my_network
+      - agritech_network
       
-  mysql:
-    image: mysql:latest
+  agritech-db:
+    build:
+      context: ./config/db
+      dockerfile: Dockerfile
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: "root_pwd"
-      MYSQL_DATABASE: "agritech_db"
-      MYSQL_USER: "admin"
-      MYSQL_PASSWORD: "admin"
+      MYSQL_DATABASE: 'agritech_db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'root_password'
+    ports:
+      - '3307:3306'
+    expose:
+      - '3307'
+    volumes:
+      - my-db:/var/lib/mysql
+      - ./data/db:/var/lib/mysql
     networks:
-      - my_network
+      - agritech_network
       
   go_server:
     build:
@@ -28,13 +37,16 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - my_network
+      - agritech_network
     depends_on:
-      - mosquitto
-      - mysql
+      - agritech-mosquitto
+      - agritech-db
 
 
 networks:
-  my_network:
+  agritech_network:
     driver: bridge
+
+volumes:
+  my-db:
 

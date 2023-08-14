@@ -23,6 +23,6 @@ This project is based on Heltec LoRa 32 v3 boards.
 From the main folder you can use `docker-compose up -d` to host 3 docker containers:
  - the server, written in Go and available at `./src/server/` and running at port 8080
  - the MQTT broker, which configuration file is available under `./config/mosquitto/` and running at port 1883
- - the MySQL database, running at port 3306
+ - the MySQL database, running at port 3307
 
 You can edit these configurations inside `docker-compose.yml`.

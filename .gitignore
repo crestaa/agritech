@@ -1,3 +1,6 @@
 src/server/server
-data/*
+data/db/*
+!data/db/.gitkeep
+data/mosquitto/*
+!data/mosquitto/.gitkeep
 src/gateway/credentials.h
