@@ -1,20 +1,22 @@
 version: '3'
 
 services:
-  agritech-mosquitto:
+  agritech-mqtt:
     image: eclipse-mosquitto
+    container_name: agritech-mqtt
     ports:
       - "1883:1883"
     volumes:
       - ./config/mosquitto:/mosquitto/config
       - ./data/mosquitto:/mosquitto/data
     networks:
-      - agritech_network
+      - agritech-network
       
   agritech-db:
     build:
       context: ./config/db
       dockerfile: Dockerfile
+    container_name: agritech-db
     restart: always
     environment:
       MYSQL_DATABASE: 'agritech_db'
@@ -28,22 +30,23 @@ services:
     volumes:
       - ./data/db:/var/lib/mysql
     networks:
-      - agritech_network
+      - agritech-network
       
-  go_server:
+  agritech-server:
     build:
       context: ./src/server
+    container_name: agritech-server
     ports:
       - "8080:8080"
     networks:
-      - agritech_network
+      - agritech-network
     depends_on:
-      - agritech-mosquitto
+      - agritech-mqtt
       - agritech-db
 
 
 networks:
-  agritech_network:
+  agritech-network:
     driver: bridge
 
 volumes:
