@@ -35,7 +35,7 @@ func main() {
 		log.Fatal(token.Error())
 	}
 
-	_ = connectDB()
+	db := connectDB()
 
 	fmt.Println("Waiting for messages...")
 
@@ -45,6 +45,8 @@ func main() {
 
 	client.Disconnect(250)
 	fmt.Println("Disconnected.")
+	defer db.Close()
+
 }
 
 type Message struct {
@@ -77,7 +79,6 @@ func connectDB() *sql.DB {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	defer db.Close()
 
 	err = db.Ping()
 	for err != nil {
@@ -86,7 +87,6 @@ func connectDB() *sql.DB {
 		err = db.Ping()
 	}
 
-	fmt.Println("Connessione al database MySQL riuscita!")
-
+	fmt.Println("MySQL connection successful")
 	return db
 }
