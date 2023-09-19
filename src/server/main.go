@@ -1,11 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
@@ -30,6 +34,8 @@ func main() {
 	if token := client.Subscribe(topic, 0, nil); token.Wait() && token.Error() != nil {
 		log.Fatal(token.Error())
 	}
+
+	_ = connectDB()
 
 	fmt.Println("Waiting for messages...")
 
@@ -64,4 +70,23 @@ func parseJSON(msg MQTT.Message) (Message, error) {
 	err := json.Unmarshal(msg.Payload(), &messageData)
 
 	return messageData, err
+}
+
+func connectDB() *sql.DB {
+	db, err := sql.Open("mysql", DB_USER+":"+DB_PASS+"@tcp("+DB_HOST+":"+DB_PORT+")/"+DB_NAME)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	for err != nil {
+		fmt.Println(err)
+		time.Sleep(4 * time.Second)
+		err = db.Ping()
+	}
+
+	fmt.Println("Connessione al database MySQL riuscita!")
+
+	return db
 }

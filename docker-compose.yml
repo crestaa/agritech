@@ -23,6 +23,7 @@ services:
       MYSQL_USER: 'user'
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'root_password'
+      MYSQL_HOST: '0.0.0.0'
     ports:
       - '3307:3306'
     expose:
