@@ -3,7 +3,7 @@ package model
 type Message struct {
 	MAC   string  `json:"mac"`
 	ID    int     `json:"id"`
-	Value float64 `json:"value"`
+	Value float32 `json:"value"`
 	Type  string  `json:"type"`
 }
 

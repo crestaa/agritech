@@ -106,6 +106,30 @@ func GetMisurazioni(db *sql.DB) ([]model.Misurazioni, error) {
 	return ret, nil
 }
 
+func GetSensorID(db *sql.DB, mac string) (int, error) {
+	ret := -1
+	rows, err := db.Query("SELECT id_sensore FROM Sensori WHERE mac=" + mac)
+	if err != nil {
+		return ret, err
+	}
+	defer rows.Close()
+
+	err = rows.Scan(&ret)
+	return ret, err
+}
+
+func GetMeasurementTypeID(db *sql.DB, name string) (int, error) {
+	ret := -1
+	rows, err := db.Query("SELECT id_tipo_misurazione FROM Sensori WHERE nome=" + name)
+	if err != nil {
+		return ret, err
+	}
+	defer rows.Close()
+
+	err = rows.Scan(&ret)
+	return ret, err
+}
+
 func SaveMisurazione(db *sql.DB, data model.Misurazioni) error {
 	query := "INSERT INTO Misurazioni (id_sensore, tipo_misurazione, nonce, valore) VALUES (?, ?, ?, ?)"
 	_, err := db.Exec(query, data.ID_sensore, data.ID_tipo_misurazione, data.Nonce, data.Valore)

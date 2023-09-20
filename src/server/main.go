@@ -4,6 +4,7 @@ import (
 	"agritech/server/constants"
 	"agritech/server/database"
 	"agritech/server/model"
+	"database/sql"
 
 	"encoding/json"
 	"fmt"
@@ -15,6 +16,8 @@ import (
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
+
+var db *sql.DB
 
 func main() {
 	// MQTT broker setup
@@ -38,7 +41,7 @@ func main() {
 	}
 
 	// database connection
-	db := database.ConnectDB()
+	db = database.ConnectDB()
 
 	fmt.Println("Waiting for messages...")
 
@@ -60,6 +63,22 @@ func handleMessage(msg MQTT.Message) {
 	}
 
 	fmt.Println("Received: ", data)
+
+	sensor_id, err := database.GetSensorID(db, data.MAC)
+	if err != nil {
+		fmt.Println("ERR while getting SensorID:", err)
+		return
+	}
+	measurement_id, err := database.GetMeasurementTypeID(db, data.Type)
+	if err != nil {
+		fmt.Println("ERR while getting MeasurementTypeID:", err)
+		return
+	}
+	send := model.Misurazioni{ID_sensore: sensor_id, Nonce: data.ID, Valore: data.Value, ID_tipo_misurazione: measurement_id}
+	err = database.SaveMisurazione(db, send)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func parseJSON(msg MQTT.Message) (model.Message, error) {
