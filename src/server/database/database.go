@@ -107,27 +107,27 @@ func GetMisurazioni(db *sql.DB) ([]model.Misurazioni, error) {
 }
 
 func GetSensorID(db *sql.DB, mac string) (int, error) {
-	ret := -1
-	rows, err := db.Query("SELECT id_sensore FROM Sensori WHERE mac='" + mac + "'")
+	var ret int
+	err := db.QueryRow("SELECT id_sensore FROM Sensori WHERE mac = ? LIMIT 1", mac).Scan(&ret)
 	if err != nil {
-		return ret, err
+		if err == sql.ErrNoRows {
+			return -1, fmt.Errorf("no sensor found with MAC: %s", mac)
+		}
+		return -1, err
 	}
-	defer rows.Close()
-
-	err = rows.Scan(&ret)
-	return ret, err
+	return ret, nil
 }
 
 func GetMeasurementTypeID(db *sql.DB, name string) (int, error) {
-	ret := -1
-	rows, err := db.Query("SELECT id_tipo_misurazione FROM Sensori WHERE nome='" + name + "'")
+	var ret int
+	err := db.QueryRow("SELECT id_tipo_misurazione FROM Sensori WHERE nome= ? LIMIT 1", name).Scan(&ret)
 	if err != nil {
-		return ret, err
+		if err == sql.ErrNoRows {
+			return -1, fmt.Errorf("no measurement type found with name: %s", name)
+		}
+		return -1, err
 	}
-	defer rows.Close()
-
-	err = rows.Scan(&ret)
-	return ret, err
+	return ret, nil
 }
 
 func SaveMisurazione(db *sql.DB, data model.Misurazioni) error {
