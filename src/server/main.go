@@ -20,6 +20,9 @@ import (
 var db *sql.DB
 
 func main() {
+	// database connection
+	db = database.ConnectDB()
+
 	// MQTT broker setup
 	opts := MQTT.NewClientOptions().AddBroker(constants.MQTT_BROKER)
 	opts.SetClientID("mqtt-subscriber")
@@ -39,9 +42,6 @@ func main() {
 	if token := client.Subscribe(topic, 0, nil); token.Wait() && token.Error() != nil {
 		log.Fatal(token.Error())
 	}
-
-	// database connection
-	db = database.ConnectDB()
 
 	fmt.Println("Waiting for messages...")
 
