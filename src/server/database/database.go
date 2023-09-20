@@ -120,7 +120,7 @@ func GetSensorID(db *sql.DB, mac string) (int, error) {
 
 func GetMeasurementTypeID(db *sql.DB, name string) (int, error) {
 	var ret int
-	err := db.QueryRow("SELECT id_tipo_misurazione FROM Tipi_Misurazione WHERE nome= ? LIMIT 1", name).Scan(&ret)
+	err := db.QueryRow("SELECT id_tipo_misurazione FROM Tipi_Misurazione WHERE nome = ? LIMIT 1", name).Scan(&ret)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return -1, fmt.Errorf("no measurement type found with name: %s", name)
@@ -128,6 +128,19 @@ func GetMeasurementTypeID(db *sql.DB, name string) (int, error) {
 		return -1, err
 	}
 	return ret, nil
+}
+
+// returns false only if there are no doubles in Misurazioni table (based on id_sensore & nonce)
+func CheckDoubles(db *sql.DB, nonce int, sensor int) (bool, error) {
+	var tmp int
+	err := db.QueryRow("SELECT id_misurazione FROM Misurazioni WHERE id_sensore = ? AND nonce = ? LIMIT 1", sensor, nonce).Scan(&tmp)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return true, err
+	}
+	return true, fmt.Errorf("found double")
 }
 
 func SaveMisurazione(db *sql.DB, data model.Misurazioni) error {
