@@ -32,6 +32,7 @@ type Misurazioni struct {
 	ID                  int
 	ID_sensore          int
 	ID_tipo_misurazione int
+	Nonce               int
 	Valore              float32
 	Data_ora            string
 }

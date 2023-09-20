@@ -97,11 +97,17 @@ func GetMisurazioni(db *sql.DB) ([]model.Misurazioni, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&a.ID, &a.ID_sensore, &a.ID_tipo_misurazione, &a.Valore, &a.Data_ora)
+		err := rows.Scan(&a.ID, &a.ID_sensore, &a.Nonce, &a.ID_tipo_misurazione, &a.Valore, &a.Data_ora)
 		if err != nil {
 			return ret, err
 		}
 		ret = append(ret, a)
 	}
 	return ret, nil
+}
+
+func SaveMisurazione(db *sql.DB, data model.Misurazioni) error {
+	query := "INSERT INTO Misurazioni (id_sensore, tipo_misurazione, nonce, valore) VALUES (?, ?, ?, ?)"
+	_, err := db.Exec(query, data.ID_sensore, data.ID_tipo_misurazione, data.Nonce, data.Valore)
+	return err
 }

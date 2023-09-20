@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS Tipi_Misurazione (
 CREATE TABLE IF NOT EXISTS Misurazioni (
     id_misurazione INT PRIMARY KEY AUTO_INCREMENT,
     id_sensore INT,
+    nonce INT,
     tipo_misurazione INT,
     valore DECIMAL(10, 2),
     data_ora DATETIME DEFAULT CURRENT_TIMESTAMP(),
