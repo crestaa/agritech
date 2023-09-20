@@ -1,13 +1,15 @@
 package main
 
 import (
-	"database/sql"
+	"agritech/server/constants"
+	"agritech/server/database"
+	"agritech/server/model"
+
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -16,10 +18,10 @@ import (
 
 func main() {
 	// MQTT broker setup
-	opts := MQTT.NewClientOptions().AddBroker(MQTT_BROKER)
+	opts := MQTT.NewClientOptions().AddBroker(constants.MQTT_BROKER)
 	opts.SetClientID("mqtt-subscriber")
-	opts.SetUsername(MQTT_USER)
-	opts.SetPassword(MQTT_PASS)
+	opts.SetUsername(constants.MQTT_USER)
+	opts.SetPassword(constants.MQTT_PASS)
 
 	// message handling logic
 	opts.SetDefaultPublishHandler(func(client MQTT.Client, msg MQTT.Message) {
@@ -30,12 +32,13 @@ func main() {
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		log.Fatal(token.Error())
 	}
-	topic := MQTT_TOPIC
+	topic := constants.MQTT_TOPIC
 	if token := client.Subscribe(topic, 0, nil); token.Wait() && token.Error() != nil {
 		log.Fatal(token.Error())
 	}
 
-	db := connectDB()
+	// database connection
+	db := database.ConnectDB()
 
 	fmt.Println("Waiting for messages...")
 
@@ -49,13 +52,6 @@ func main() {
 
 }
 
-type Message struct {
-	MAC   string  `json:"mac"`
-	ID    int     `json:"id"`
-	Value float64 `json:"value"`
-	Type  string  `json:"type"`
-}
-
 func handleMessage(msg MQTT.Message) {
 	data, err := parseJSON(msg)
 	if err != nil {
@@ -64,29 +60,11 @@ func handleMessage(msg MQTT.Message) {
 	}
 
 	fmt.Println("Received: ", data)
-
 }
 
-func parseJSON(msg MQTT.Message) (Message, error) {
-	var messageData Message
+func parseJSON(msg MQTT.Message) (model.Message, error) {
+	var messageData model.Message
 	err := json.Unmarshal(msg.Payload(), &messageData)
 
 	return messageData, err
-}
-
-func connectDB() *sql.DB {
-	db, err := sql.Open("mysql", DB_USER+":"+DB_PASS+"@tcp("+DB_HOST+":"+DB_PORT+")/"+DB_NAME)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	err = db.Ping()
-	for err != nil {
-		fmt.Println(err)
-		time.Sleep(4 * time.Second)
-		err = db.Ping()
-	}
-
-	fmt.Println("MySQL connection successful")
-	return db
 }

@@ -1,4 +1,4 @@
-package main
+package constants
 
 const MQTT_BROKER = "tcp://agritech-mqtt:1883"
 const MQTT_TOPIC = "test"
