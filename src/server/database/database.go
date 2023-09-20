@@ -108,7 +108,7 @@ func GetMisurazioni(db *sql.DB) ([]model.Misurazioni, error) {
 
 func GetSensorID(db *sql.DB, mac string) (int, error) {
 	ret := -1
-	rows, err := db.Query("SELECT id_sensore FROM Sensori WHERE mac=" + mac)
+	rows, err := db.Query("SELECT id_sensore FROM Sensori WHERE mac='" + mac + "'")
 	if err != nil {
 		return ret, err
 	}
@@ -120,7 +120,7 @@ func GetSensorID(db *sql.DB, mac string) (int, error) {
 
 func GetMeasurementTypeID(db *sql.DB, name string) (int, error) {
 	ret := -1
-	rows, err := db.Query("SELECT id_tipo_misurazione FROM Sensori WHERE nome=" + name)
+	rows, err := db.Query("SELECT id_tipo_misurazione FROM Sensori WHERE nome='" + name + "'")
 	if err != nil {
 		return ret, err
 	}
