@@ -120,7 +120,7 @@ func GetSensorID(db *sql.DB, mac string) (int, error) {
 
 func GetMeasurementTypeID(db *sql.DB, name string) (int, error) {
 	var ret int
-	err := db.QueryRow("SELECT id_tipo_misurazione FROM Sensori WHERE nome= ? LIMIT 1", name).Scan(&ret)
+	err := db.QueryRow("SELECT id_tipo_misurazione FROM Tipi_Misurazione WHERE nome= ? LIMIT 1", name).Scan(&ret)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return -1, fmt.Errorf("no measurement type found with name: %s", name)
