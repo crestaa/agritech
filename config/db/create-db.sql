@@ -47,8 +47,8 @@ INSERT INTO Sensori (id_sensore, mac, id_campo, latitudine, longitudine)
 VALUES (1, 'F4:12:FA:6A:49:90', 1, 45.749870, 11.458926);
 
 INSERT INTO Tipi_Misurazione (id_tipo_misurazione, nome, unita_misura)
-VALUES (1, 'umidità', '%');
+VALUES (1, 'hum', '%');
 
 INSERT INTO Tipi_Misurazione (id_tipo_misurazione, nome, unita_misura)
-VALUES (2, 'temperatura', '°C');
+VALUES (2, 'temp', '°C');
 
