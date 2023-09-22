@@ -1,6 +1,7 @@
 package main
 
 import (
+	"agritech/server/api"
 	"agritech/server/constants"
 	"agritech/server/database"
 	"agritech/server/model"
@@ -44,6 +45,8 @@ func main() {
 	}
 
 	fmt.Println("Waiting for messages...")
+
+	api.Serve()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
