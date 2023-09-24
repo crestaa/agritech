@@ -46,6 +46,7 @@ func main() {
 
 	fmt.Println("Waiting for messages...")
 
+	// API server
 	api.Serve()
 
 	c := make(chan os.Signal, 1)
