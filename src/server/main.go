@@ -65,7 +65,7 @@ func handleMessage(msg MQTT.Message) {
 
 	fmt.Println("Received: ", data)
 
-	sensor_id, err := database.GetSensorID(data.MAC)
+	sensor_id, err := database.GetSensorByMAC(data.MAC)
 	if err != nil {
 		fmt.Println("ERR while getting SensorID:", err)
 		return

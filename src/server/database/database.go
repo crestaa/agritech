@@ -111,6 +111,18 @@ func GetFieldSensors(id int) ([]model.Sensori, error) {
 	return ret, nil
 }
 
+func GetSensorByID(id int) (model.Sensori, error) {
+	var ret model.Sensori
+	err := DB.QueryRow("SELECT * FROM Sensori WHERE id_sensore = ? LIMIT 1", id).Scan(&ret.ID, &ret.MAC, &ret.ID_campo, &ret.Lat, &ret.Lon)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return model.Sensori{}, nil
+		}
+		return model.Sensori{}, err
+	}
+	return ret, nil
+}
+
 /******************************************************************************************/
 /****************	FUNCTIONS FOR LISTENER ON MQTT + SAVING DATA	***********************/
 /******************************************************************************************/
@@ -155,7 +167,7 @@ func GetMisurazioni() ([]model.Misurazioni, error) {
 	return ret, nil
 }
 
-func GetSensorID(mac string) (int, error) {
+func GetSensorByMAC(mac string) (int, error) {
 	var ret int
 	err := DB.QueryRow("SELECT id_sensore FROM Sensori WHERE mac = ? LIMIT 1", mac).Scan(&ret)
 	if err != nil {
