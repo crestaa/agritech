@@ -57,7 +57,7 @@ func GetCampo(id int) (model.Campi, error) {
 	err := DB.QueryRow("SELECT * FROM Campi WHERE id_campo = ? LIMIT 1", id).Scan(&a.ID, &a.Nome, &a.Lat, &a.Lon)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return model.Campi{}, fmt.Errorf("no field found with id: %d", id)
+			return model.Campi{}, nil
 		}
 		return model.Campi{}, err
 	}
@@ -81,6 +81,28 @@ func GetReadings(id int, t int) ([]model.Misurazioni, error) {
 
 	for rows.Next() {
 		err := rows.Scan(&a.ID, &a.ID_sensore, &a.Nonce, &a.ID_tipo_misurazione, &a.Valore, &a.Data_ora)
+		if err != nil {
+			return ret, err
+		}
+		ret = append(ret, a)
+	}
+	return ret, nil
+}
+
+func GetFieldSensors(id int) ([]model.Sensori, error) {
+	var a model.Sensori
+	var ret []model.Sensori
+	var rows *sql.Rows
+	var err error
+
+	rows, err = DB.Query("SELECT * FROM Sensori WHERE id_campo = ?", id)
+	if err != nil {
+		return ret, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&a.ID, &a.MAC, &a.ID_campo, &a.Lat, &a.Lon)
 		if err != nil {
 			return ret, err
 		}

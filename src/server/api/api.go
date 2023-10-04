@@ -82,16 +82,26 @@ func apiHandler(r *gin.Engine) {
 		}
 		c.String(http.StatusOK, r)
 	})
-
-	apiGroup.GET("/fields/:id/sensor/:sensor", func(c *gin.Context) {
-		c.String(http.StatusOK, "TODO")
+	apiGroup.GET("/fields/:id/sensors/", func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+		r, err := returnFieldSensors(id)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+		}
+		c.String(http.StatusOK, r)
 	})
+
 	apiGroup.GET("/sensors", func(c *gin.Context) {
 		c.String(http.StatusOK, "TODO")
 	})
 	apiGroup.GET("/sensors/:id", func(c *gin.Context) {
 		c.String(http.StatusOK, "TODO")
 	})
+
 }
 
 func returnCampo(id int) (string, error) {
@@ -124,6 +134,20 @@ func returnCampi() (string, error) {
 
 func returnFieldReadings(id int, t int) (string, error) {
 	reads, err := database.GetReadings(id, t)
+	if err != nil {
+		fmt.Print(err)
+		return "", err
+	}
+	ret, err := json.Marshal(reads)
+	if err != nil {
+		fmt.Print(err)
+		return "", err
+	}
+	return bytes.NewBuffer(ret).String(), nil
+}
+
+func returnFieldSensors(id int) (string, error) {
+	reads, err := database.GetFieldSensors(id)
 	if err != nil {
 		fmt.Print(err)
 		return "", err
