@@ -64,11 +64,16 @@ func GetCampo(id int) (model.Campi, error) {
 	return a, nil
 }
 
-func GetReadings(id int) ([]model.Misurazioni, error) {
+func GetReadings(id int, t int) ([]model.Misurazioni, error) {
 	var a model.Misurazioni
 	var ret []model.Misurazioni
-
-	rows, err := DB.Query("SELECT Misurazioni.* FROM Misurazioni JOIN Sensori ON Misurazioni.id_sensore = Sensori.id_sensore JOIN Campi ON Sensori.id_campo = Campi.id_campo WHERE Campi.id_campo = ?", id)
+	var rows *sql.Rows
+	var err error
+	if t == -1 {
+		rows, err = DB.Query("SELECT Misurazioni.* FROM Misurazioni JOIN Sensori ON Misurazioni.id_sensore = Sensori.id_sensore JOIN Campi ON Sensori.id_campo = Campi.id_campo WHERE Campi.id_campo = ?", id)
+	} else {
+		rows, err = DB.Query("SELECT Misurazioni.* FROM Misurazioni JOIN Sensori ON Misurazioni.id_sensore = Sensori.id_sensore JOIN Campi ON Sensori.id_campo = Campi.id_campo WHERE Campi.id_campo = ? AND Misurazioni.tipo_misurazione = ?", id, t)
+	}
 	if err != nil {
 		return ret, err
 	}

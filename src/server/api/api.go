@@ -41,7 +41,6 @@ func apiHandler(r *gin.Engine) {
 		}
 		c.String(http.StatusOK, r)
 	})
-
 	apiGroup.GET("/fields/:id", func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
@@ -54,22 +53,36 @@ func apiHandler(r *gin.Engine) {
 		}
 		c.String(http.StatusOK, ret)
 	})
-
 	apiGroup.GET("/fields/:id/readings", func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.String(http.StatusBadRequest, err.Error())
 			return
 		}
-		r, err := returnFieldReadings(id)
+		r, err := returnFieldReadings(id, -1)
 		if err != nil {
 			c.String(http.StatusInternalServerError, err.Error())
 		}
 		c.String(http.StatusOK, r)
 	})
 	apiGroup.GET("/fields/:id/readings/:type", func(c *gin.Context) {
-		c.String(http.StatusOK, "TODO")
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+		t, err := strconv.Atoi(c.Param("type"))
+		if err != nil {
+			c.String(http.StatusBadRequest, err.Error())
+			return
+		}
+		r, err := returnFieldReadings(id, t)
+		if err != nil {
+			c.String(http.StatusInternalServerError, err.Error())
+		}
+		c.String(http.StatusOK, r)
 	})
+
 	apiGroup.GET("/fields/:id/sensor/:sensor", func(c *gin.Context) {
 		c.String(http.StatusOK, "TODO")
 	})
@@ -109,8 +122,8 @@ func returnCampi() (string, error) {
 	return bytes.NewBuffer(ret).String(), nil
 }
 
-func returnFieldReadings(id int) (string, error) {
-	reads, err := database.GetReadings(id)
+func returnFieldReadings(id int, t int) (string, error) {
+	reads, err := database.GetReadings(id, t)
 	if err != nil {
 		fmt.Print(err)
 		return "", err
