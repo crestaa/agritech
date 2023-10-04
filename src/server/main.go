@@ -5,7 +5,6 @@ import (
 	"agritech/server/constants"
 	"agritech/server/database"
 	"agritech/server/model"
-	"database/sql"
 
 	"encoding/json"
 	"fmt"
@@ -18,11 +17,9 @@ import (
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
-var db *sql.DB
-
 func main() {
 	// database connection
-	db = database.ConnectDB()
+	database.DB = database.ConnectDB()
 
 	// MQTT broker setup
 	opts := MQTT.NewClientOptions().AddBroker(constants.MQTT_BROKER)
@@ -55,7 +52,7 @@ func main() {
 
 	client.Disconnect(250)
 	fmt.Println("Disconnected.")
-	defer db.Close()
+	defer database.DB.Close()
 
 }
 
@@ -68,24 +65,24 @@ func handleMessage(msg MQTT.Message) {
 
 	fmt.Println("Received: ", data)
 
-	sensor_id, err := database.GetSensorID(db, data.MAC)
+	sensor_id, err := database.GetSensorID(data.MAC)
 	if err != nil {
 		fmt.Println("ERR while getting SensorID:", err)
 		return
 	}
-	measurement_id, err := database.GetMeasurementTypeID(db, data.Type)
+	measurement_id, err := database.GetMeasurementTypeID(data.Type)
 	if err != nil {
 		fmt.Println("ERR while getting MeasurementTypeID:", err)
 		return
 	}
-	is_double, err := database.CheckDoubles(db, data.ID, sensor_id)
+	is_double, err := database.CheckDoubles(data.ID, sensor_id)
 	if err != nil {
 		fmt.Println("ERR while checking for doubles:", err)
 		return
 	}
 	if !is_double {
 		send := model.Misurazioni{ID_sensore: sensor_id, Nonce: data.ID, Valore: data.Value, ID_tipo_misurazione: measurement_id}
-		err = database.SaveMisurazione(db, send)
+		err = database.SaveMisurazione(send)
 		if err != nil {
 			fmt.Println(err)
 		}
