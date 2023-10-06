@@ -25,7 +25,11 @@ function fetchSensors(){
     fetch(url,{}).then((response)=>response.json()).then(
         (data)=>{
             console.log(data)
-            
+            sensors = data
+
+            sensors.forEach(function(el){
+                document.getElementById('sensorsList').innerHTML += [{ id:el.ID, mac:el.MAC, lat:el.Lat, lon:el.Lon }].map(Item)
+            })
         }
     )
 }
@@ -45,41 +49,25 @@ function fetchLocations() {
 
       let coords = []
       data.forEach(function (el) {
-        
-        var addr = `${el.address.street}, ${el.address.city}, ${el.address.zip}, ${el.address.country}`
-        var c = { lon: el.longitude, lat: el.latitude }
-        coords.push(c)
-        document.getElementById('locationsList').innerHTML += [{ name: el.name, id: el._id, address: addr }].map(Item)
+
+        document.getElementById('locationsList').innerHTML += [{ id:el.ID, mac:el.MAC, lat:el.Lat, lon:el.Lon }].map(Item)
       })
       initMap('map', coords)
     })
 }
 //item template
-const Item = ({ name, id, address }) => `
+const Item = ({ id, mac, lat, lon }) => `
     <tr p-2 class="py-8 border-b border-solid border-gray-300">
         <td class="p-2 py-4 border-b border-solid border-gray-300">
             <div class="pl-4 flex flex-wrap flex-row items-center">
-                <div class="mr-4 h-16 w-64 block flex flex-row items-center">${name}</div>
-                <div class="mr-4 h-16 w-flex block flex flex-row items-center">${address}</div>
+                <div class="mr-4 h-16 w-32 block flex flex-row items-center">${id}</div>
+                <div class="mr-4 h-16 w-64 block flex flex-row items-center">${mac}</div>
+                <div class="mr-4 h-16 w-64 block flex flex-row items-center">${lat}</div>
+                <div class="mr-4 h-16 w-64 block flex flex-row items-center">${lon}</div>
             </div>
-        </td>
-        <td class="text-right p-2 pr-4 border-b border-solid border-gray-300 text-gray-700">
-            <a href="edit/?id=${id}"><i class="bi bi-pencil text-orange-600"></i></a>
-            &nbsp;&nbsp;
-            <button onclick='locationRemove("${name}","${id}")'><i class="bi bi-trash text-red-600"></i></button>
         </td>
     </tr>
 `
-function locationRemove(name, id) {
-  if (confirm('Are you sure you want to remove the location ' + name + ' | ' + id + '?')) {
-    fetch('/api/v2/locations/' + id, {
-      method: 'DELETE',
-      headers: {
-        authorization: localStorage.bo_token
-      }
-    }).then(fetchLocations())
-  }
-}
 
 // MAP-RELATED FUNCTIONS
 function initMap(target, coords) {
