@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" contend="width=device-width, initial-scale=1" />
 
-    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
     <script
       src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
       integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
@@ -20,15 +19,69 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
     />
 
-    <!-- chart -->
-    <link
-      rel="stylesheet"
-      href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css"
-    />
-    <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
-
-    <title>TEST</title>
+    <title>Agritech</title>
   </head>
 
-  <body></body>
+  <body>
+    <div id="app" class="md:flex antialiased">
+      <main class="bg-gray-100 h-screen w-full overflow-y-auto">
+        <section id="performance">
+          <header class="border-b border-solid border-gray-300 bg-gray-700">
+            <h2 class="p-6 text-gray-100" id="field_name">Field:</h2>
+          </header>
+          <section
+            class="m-4 bg-white border border-gray-300 border-solid rounded shadow"
+          >
+            <div class="flex flex-row w-full lg:w-full">
+              <div class="w-3/4">
+                <section class="overflow-x-auto w-full">
+                  <div id="map" style="width: 100%; height: 70vh"></div>
+                </section>
+              </div>
+
+              <div class="w-1/4">
+                <section class="overflow-x-auto w-full">
+                  <div>WEATHER</div>
+                </section>
+              </div>
+            </div>
+            <div class="w-full lg:w">
+              <section class="overflow-x-auto w-full">
+                <table
+                  class="w-full"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                >
+                  <thead>
+                    <tr p-2 class="py-8 border-b border-solid border-gray-300">
+                      <th
+                        class="p-2 py-4 border-b border-solid border-gray-300"
+                      >
+                        <div class="pl-4 flex flex-wrap flex-row items-center">
+                          <div
+                            class="mr-4 h-16 w-64 block flex flex-row items-center"
+                          >
+                            Name
+                          </div>
+                          <div
+                            class="mr-4 h-16 w-flex block flex flex-row items-center"
+                          >
+                            Address
+                          </div>
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="locationsList"></tbody>
+                </table>
+              </section>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+    <script src="https://openlayers.org/api/2.13.1/OpenLayers.js"></script>
+    <script src="js/script.js"></script>
+  </body>
 </html>

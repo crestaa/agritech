@@ -82,7 +82,7 @@ func apiHandler(r *gin.Engine) {
 		}
 		c.String(http.StatusOK, r)
 	})
-	apiGroup.GET("/fields/:id/sensors/", func(c *gin.Context) {
+	apiGroup.GET("/fields/:id/sensors", func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.String(http.StatusBadRequest, err.Error())
