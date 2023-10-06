@@ -1,7 +1,7 @@
 const field_id = 1;
 var field;
 var sensors;
-var measurements;
+var readings;
 
 function fetchField(){
     var url = '../api/fields/'+field_id
@@ -28,35 +28,33 @@ function fetchSensors(){
             sensors = data
 
             sensors.forEach(function(el){
-                document.getElementById('sensorsList').innerHTML += [{ id:el.ID, mac:el.MAC, lat:el.Lat, lon:el.Lon }].map(Item)
+                document.getElementById('sensorsList').innerHTML += [{ id:el.ID, mac:el.MAC, lat:el.Lat, lon:el.Lon }].map(sensorItem)
             })
         }
     )
 }
 fetchSensors()
 
-function fetchLocations() {
-  var url = '/api/v2/locations/'
-  fetch(url, {
-    headers: {
-      authorization: localStorage.bo_token
-    }
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      target = 'locationsList'
-      document.getElementById('locationsList').innerHTML = ''
+function fetchReadings(){
+    var url = '../api/fields/'+field_id+"/readings"
+    fetch(url,{}).then((response)=>response.json()).then(
+        (data)=>{
+            console.log(data)
+            readings = data
 
-      let coords = []
-      data.forEach(function (el) {
-
-        document.getElementById('locationsList').innerHTML += [{ id:el.ID, mac:el.MAC, lat:el.Lat, lon:el.Lon }].map(Item)
-      })
-      initMap('map', coords)
-    })
+            readings.forEach(function(el){
+                v=el.Valore
+                t=el.ID_tipo_misurazione
+                if(t==1){t="Humidity"; v+="%"}
+                document.getElementById('readingsList').innerHTML += [{ sens_id:el.ID_sensore, type:t, value:v, time:el.Data_ora }].map(readingItem)
+            })
+        }
+    )
 }
+fetchReadings()
+
 //item template
-const Item = ({ id, mac, lat, lon }) => `
+const sensorItem = ({ id, mac, lat, lon }) => `
     <tr p-2 class="py-8 border-b border-solid border-gray-300">
         <td class="p-2 py-4 border-b border-solid border-gray-300">
             <div class="pl-4 flex flex-wrap flex-row items-center">
@@ -64,6 +62,18 @@ const Item = ({ id, mac, lat, lon }) => `
                 <div class="mr-4 h-16 w-64 block flex flex-row items-center">${mac}</div>
                 <div class="mr-4 h-16 w-64 block flex flex-row items-center">${lat}</div>
                 <div class="mr-4 h-16 w-64 block flex flex-row items-center">${lon}</div>
+            </div>
+        </td>
+    </tr>
+`
+const readingItem = ({ sens_id, type, value, time }) => `
+    <tr p-2 class="py-8 border-b border-solid border-gray-300">
+        <td class="p-2 py-4 border-b border-solid border-gray-300">
+            <div class="pl-4 flex flex-wrap flex-row items-center">
+                <div class="mr-4 h-16 w-32 block flex flex-row items-center">${sens_id}</div>
+                <div class="mr-4 h-16 w-64 block flex flex-row items-center">${type}</div>
+                <div class="mr-4 h-16 w-64 block flex flex-row items-center">${value}</div>
+                <div class="mr-4 h-16 w-64 block flex flex-row items-center">${time}</div>
             </div>
         </td>
     </tr>
