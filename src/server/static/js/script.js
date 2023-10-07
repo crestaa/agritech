@@ -65,13 +65,24 @@ function fetchReadings(){
         (data)=>{
             console.log(data)
             readings = data
+            readings.reverse()
 
-            readings.forEach(function(el){
-                v=el.Valore
-                t=el.ID_tipo_misurazione
-                if(t==1){t="Humidity"; v+="%"}
-                document.getElementById('readingsList').innerHTML += [{ sens_id:el.ID_sensore, type:t, value:v, time:el.Data_ora }].map(readingItem)
-            })
+            const maxIterations = Math.min(readings.length, 50);
+            for (let i = 0; i < maxIterations; i++) {
+                const el = readings[i];
+                const v = el.Valore;
+                let t = el.ID_tipo_misurazione;
+
+                if (t === 1) {
+                    t = "Humidity";
+                    v += " %";
+                } else if (t === 2) {
+                    t = "Temperature";
+                    v += " °C";
+                }
+
+                document.getElementById('readingsList').innerHTML += [{ sens_id: el.ID_sensore, type: t, value: v, time: el.Data_ora }].map(readingItem);
+            }
             getAverages()
         }
     )
