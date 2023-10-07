@@ -6,7 +6,7 @@ This project is part of my internship at University of Bologna, bachelor degree 
 The project is inside the `src` directory and it is split into:
  - `enddevice`, Arduino sketch(es) used for controlling sensors, collecting data and sending them over LoRaWAN protocol to gateway(s)
  - `gateway`, Arduino sketch(es) for forwarding data from LoRaWAN to the server over MQTT protocol
- - `server`, Go software for collecting data from the MQTT broker, process them and save to the DB
+ - `server`, Go software for collecting data from the MQTT broker, process them and save to the DB. It also serves a web interface for displaying collected data and its API
  
  TODO:
  - `webapp`
@@ -30,5 +30,7 @@ From the main folder you can use `docker-compose up -d` to host 3 docker contain
  - the MySQL database, running at port 3307
 
 You can edit these configurations inside `docker-compose.yml`.
+
+The web app is running at `{HOST_IP}:8080/web` and its API is available at `{HOST_IP}:8080/api`.
 
 ## Extra
