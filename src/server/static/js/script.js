@@ -69,9 +69,9 @@ function fetchReadings(){
 
             const maxIterations = Math.min(readings.length, 50);
             for (let i = 0; i < maxIterations; i++) {
-                const el = readings[i];
-                const v = el.Valore;
-                let t = el.ID_tipo_misurazione;
+                var el = readings[i];
+                var v = el.Valore;
+                var t = el.ID_tipo_misurazione;
 
                 if (t === 1) {
                     t = "Humidity";
