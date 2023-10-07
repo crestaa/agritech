@@ -8,8 +8,6 @@ The project is inside the `src` directory and it is split into:
  - `gateway`, Arduino sketch(es) for forwarding data from LoRaWAN to the server over MQTT protocol
  - `server`, Go software for collecting data from the MQTT broker, process them and save to the DB. It also serves a web interface for displaying collected data and its API
  
- TODO:
- - `webapp`
 
 ## Setup
 ### `enddevice` and `gateway`
