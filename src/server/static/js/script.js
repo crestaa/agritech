@@ -98,7 +98,7 @@ function getAverages(){
     avgHum = avgReading(lastHum)
     avgTemp = avgReading(lastTemp)
     document.getElementById("avg_hum_space").innerHTML=avgHum
-    document.getElementById("avg_temp_space").innerHTML=temp
+    document.getElementById("avg_temp_space").innerHTML=avgTemp
 }
 // MAP-RELATED FUNCTIONS
 function initMap(target, coords) {
