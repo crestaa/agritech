@@ -1,57 +1,9 @@
 const field_id = 1;
 var field;
-var sensors;
-var readings;
+var sensors, readings;
+var lastHum, lastTemp;
+var avgHum, avgTemp;
 
-function fetchField(){
-    var url = '../api/fields/'+field_id
-    fetch(url,{}).then((response)=>response.json()).then(
-        (data)=>{
-            console.log(data)
-            field = data
-
-            document.getElementById('field_name').innerHTML+=" "+field.Nome
-            var coords = []
-            var c = { lon: field.Lon, lat: field.Lat }
-            coords.push(c) 
-            initMap('map',coords)
-        }
-    )
-}
-fetchField()
-
-function fetchSensors(){
-    var url = '../api/fields/'+field_id+"/sensors"
-    fetch(url,{}).then((response)=>response.json()).then(
-        (data)=>{
-            console.log(data)
-            sensors = data
-
-            sensors.forEach(function(el){
-                document.getElementById('sensorsList').innerHTML += [{ id:el.ID, mac:el.MAC, lat:el.Lat, lon:el.Lon }].map(sensorItem)
-            })
-        }
-    )
-}
-fetchSensors()
-
-function fetchReadings(){
-    var url = '../api/fields/'+field_id+"/readings"
-    fetch(url,{}).then((response)=>response.json()).then(
-        (data)=>{
-            console.log(data)
-            readings = data
-
-            readings.forEach(function(el){
-                v=el.Valore
-                t=el.ID_tipo_misurazione
-                if(t==1){t="Humidity"; v+="%"}
-                document.getElementById('readingsList').innerHTML += [{ sens_id:el.ID_sensore, type:t, value:v, time:el.Data_ora }].map(readingItem)
-            })
-        }
-    )
-}
-fetchReadings()
 
 //item template
 const sensorItem = ({ id, mac, lat, lon }) => `
@@ -79,17 +31,86 @@ const readingItem = ({ sens_id, type, value, time }) => `
     </tr>
 `
 
+function fetchField(){
+    var url = '../api/fields/'+field_id
+    fetch(url,{}).then((response)=>response.json()).then(
+        (data)=>{
+            console.log(data)
+            field = data
+
+            document.getElementById('field_name').innerHTML+=" "+field.Nome
+            var coords = []
+            var c = { lon: field.Lon, lat: field.Lat }
+            coords.push(c) 
+            initMap('map',coords)
+        }
+    )
+}
+function fetchSensors(){
+    var url = '../api/fields/'+field_id+"/sensors"
+    fetch(url,{}).then((response)=>response.json()).then(
+        (data)=>{
+            console.log(data)
+            sensors = data
+
+            sensors.forEach(function(el){
+                document.getElementById('sensorsList').innerHTML += [{ id:el.ID, mac:el.MAC, lat:el.Lat, lon:el.Lon }].map(sensorItem)
+            })
+        }
+    )
+}
+function fetchReadings(){
+    var url = '../api/fields/'+field_id+"/readings"
+    fetch(url,{}).then((response)=>response.json()).then(
+        (data)=>{
+            console.log(data)
+            readings = data
+
+            readings.forEach(function(el){
+                v=el.Valore
+                t=el.ID_tipo_misurazione
+                if(t==1){t="Humidity"; v+="%"}
+                document.getElementById('readingsList').innerHTML += [{ sens_id:el.ID_sensore, type:t, value:v, time:el.Data_ora }].map(readingItem)
+            })
+            getAverages()
+        }
+    )
+}
+function getLastNByType(array, type, n) {
+    const filter = array.filter(el => el.ID_tipo_misurazione == type);
+    filter.sort((a, b) => new Date(b.Data_ora) - new Date(a.Data_ora));
+    const ret = filter.slice(0, n);
+
+    return ret;
+}
+function avgReading(array) {
+    if (array.length == 0) {
+        return "-";
+    }
+
+    const sum = array.reduce((acc, el) => acc + el.Valore, 0);
+    const media = sum / array.length;
+    return media;
+}
+function getAverages(){
+    lastHum = getLastNByType(readings,1,10)
+    lastTemp = getLastNByType(readings,2,10)
+    avgHum = avgReading(lastHum)
+    avgTemp = avgReading(lastTemp)
+    document.getElementById("avg_hum_space").innerHTML=avgHum
+    document.getElementById("avg_temp_space").innerHTML=temp
+}
 // MAP-RELATED FUNCTIONS
 function initMap(target, coords) {
   map = new OpenLayers.Map(target)
   map.addLayer(new OpenLayers.Layer.OSM())
 
-  var center = new OpenLayers.LonLat(11.3426163, 44.494887).transform(
+  var center = new OpenLayers.LonLat(coords[0].lon, coords[0].lat).transform(
     new OpenLayers.Projection('EPSG:4326'),
     map.getProjectionObject()
   )
 
-  var zoom = 8
+  var zoom = 10
 
   map.setCenter(center, zoom)
 
@@ -115,3 +136,9 @@ function addMarkers(map, coords) {
     markers.addMarker(new OpenLayers.Marker(loc, icon.clone()))
   })
 }
+
+
+
+fetchField()
+fetchSensors()
+fetchReadings()
