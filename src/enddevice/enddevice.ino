@@ -14,6 +14,9 @@
 #include <WiFi.h>
 #include "read_data.h"
 
+#define DEEP_SLEEP_INTERVAL                         300 //delay in seconds between data reads
+
+
 #define RF_FREQUENCY                                868000000 // Hz
 
 #define TX_OUTPUT_POWER                             14        // dBm
@@ -22,12 +25,12 @@
                                                               //  1: 250 kHz,
                                                               //  2: 500 kHz,
                                                               //  3: Reserved]
-#define LORA_SPREADING_FACTOR                       12         // [SF7..SF12]
+#define LORA_SPREADING_FACTOR                       10         // [SF7..SF12]
 #define LORA_CODINGRATE                             1         // [1: 4/5,
                                                               //  2: 4/6,
                                                               //  3: 4/7,
                                                               //  4: 4/8]
-#define LORA_PREAMBLE_LENGTH                        12         // Same for Tx and Rx
+#define LORA_PREAMBLE_LENGTH                        10         // Same for Tx and Rx
 #define LORA_SYMBOL_TIMEOUT                         0         // Symbols
 #define LORA_FIX_LENGTH_PAYLOAD_ON                  false
 #define LORA_IQ_INVERSION_ON                        false
@@ -76,16 +79,17 @@ void loop()
 {
 	if(lora_idle == true)
 	{
-    delay(5000);
     readData();
     lora_idle = false;
+    esp_sleep_enable_timer_wakeup(DEEP_SLEEP_INTERVAL * 1000000);
+    esp_deep_sleep_start();
 	}
   Radio.IrqProcess( );
 }
 
 void readData(){
   readHum();
-  delay(400);
+  delay(2000);
   readTemp();
 }
 
@@ -106,10 +110,10 @@ void sendLoRaData(float value, const char* type) {
   txNumber++;
   // JSON object
   StaticJsonDocument<200> jsonDocument;
-  jsonDocument["mac"] = mac;
-  jsonDocument["id"] = id;
-  jsonDocument["value"] = value;
-  jsonDocument["type"] = type;
+  jsonDocument["m"] = mac;
+  jsonDocument["i"] = id;
+  jsonDocument["v"] = value;
+  jsonDocument["t"] = type;
 
   // serialized JSON to string
   String jsonString;
