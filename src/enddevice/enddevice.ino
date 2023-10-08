@@ -25,12 +25,12 @@
                                                               //  1: 250 kHz,
                                                               //  2: 500 kHz,
                                                               //  3: Reserved]
-#define LORA_SPREADING_FACTOR                       12         // [SF7..SF12]
+#define LORA_SPREADING_FACTOR                       10         // [SF7..SF12]
 #define LORA_CODINGRATE                             1         // [1: 4/5,
                                                               //  2: 4/6,
                                                               //  3: 4/7,
                                                               //  4: 4/8]
-#define LORA_PREAMBLE_LENGTH                        12         // Same for Tx and Rx
+#define LORA_PREAMBLE_LENGTH                        10         // Same for Tx and Rx
 #define LORA_SYMBOL_TIMEOUT                         0         // Symbols
 #define LORA_FIX_LENGTH_PAYLOAD_ON                  false
 #define LORA_IQ_INVERSION_ON                        false
@@ -110,10 +110,10 @@ void sendLoRaData(float value, const char* type) {
   txNumber++;
   // JSON object
   StaticJsonDocument<200> jsonDocument;
-  jsonDocument["mac"] = mac;
-  jsonDocument["id"] = id;
-  jsonDocument["value"] = value;
-  jsonDocument["type"] = type;
+  jsonDocument["m"] = mac;
+  jsonDocument["i"] = id;
+  jsonDocument["v"] = value;
+  jsonDocument["t"] = type;
 
   // serialized JSON to string
   String jsonString;

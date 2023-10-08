@@ -1,10 +1,10 @@
 package model
 
 type Message struct {
-	MAC   string  `json:"mac"`
-	ID    int     `json:"id"`
-	Value float32 `json:"value"`
-	Type  string  `json:"type"`
+	MAC   string  `json:"m"`
+	ID    int     `json:"i"`
+	Value float32 `json:"v"`
+	Type  string  `json:"t"`
 }
 
 type Tipi_Misurazione struct {
