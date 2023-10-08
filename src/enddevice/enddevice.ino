@@ -13,6 +13,8 @@
 #include <ArduinoJson.h>
 #include <WiFi.h>
 #include "read_data.h"
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 #define DEEP_SLEEP_INTERVAL                         300 //delay in seconds between data reads
 
@@ -37,8 +39,7 @@
 
 #define BUFFER_SIZE                                 128       // LoRa payload size, same for Tx and Rx
 
-#define PIN_HUM 0
-#define PIN_TEMP 0
+#define PIN_TEMP 14
 
 
 char txpacket[BUFFER_SIZE];
@@ -46,6 +47,9 @@ double txNumber;
 bool lora_idle=true;
 static RadioEvents_t RadioEvents;
 char mac[18];
+OneWire oneWire(PIN_TEMP);
+DallasTemperature sensors(&oneWire);
+
 
 void OnTxDone( void );
 void OnTxTimeout( void );
@@ -99,8 +103,10 @@ void readHum(){
   else Serial.println("ERROR: humidity read returned negative value, please check sensor connection");
 }
 void readTemp(){
-  // MOCKUP
-  sendLoRaData(float(random(200))/2, "temp");
+  sensors.requestTemperatures();
+  float temp = sensors.getTempCByIndex(0);
+  if (temp != -127) sendLoRaData(temp, "temp");
+  else Serial.println("ERROR: temperature read returned error value, please check sensor connection");
 }
 
 void sendLoRaData(float value, const char* type) {

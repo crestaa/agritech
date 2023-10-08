@@ -6,6 +6,7 @@ enum humidity {
   MAX_LIMIT = 4500
 };
 
+
 int getHumidity() {
   int value = analogRead(humidity::PIN);
 
