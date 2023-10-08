@@ -14,6 +14,9 @@
 #include <WiFi.h>
 #include "read_data.h"
 
+#define DEEP_SLEEP_INTERVAL                         300 //delay in seconds between data reads
+
+
 #define RF_FREQUENCY                                868000000 // Hz
 
 #define TX_OUTPUT_POWER                             14        // dBm
@@ -76,16 +79,17 @@ void loop()
 {
 	if(lora_idle == true)
 	{
-    delay(5000);
     readData();
     lora_idle = false;
+    esp_sleep_enable_timer_wakeup(DEEP_SLEEP_INTERVAL * 1000000);
+    esp_deep_sleep_start();
 	}
   Radio.IrqProcess( );
 }
 
 void readData(){
   readHum();
-  delay(400);
+  delay(2000);
   readTemp();
 }
 
